@@ -9,4 +9,10 @@ provider:
   iam:
     role: ${file(./config.yml):role}
 
-
+functions:
+  getFlights:
+    handler: functions/getFlights/index.handler
+    events:
+      - httpApi:
+          path: /api/flights
+          method: GET
