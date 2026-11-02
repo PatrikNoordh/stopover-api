@@ -23,3 +23,10 @@ functions:
       - httpApi:
           path: /api/flights/{id}
           method: GET
+
+  addFlight:
+    handler: functions/addFlight/index.handler
+    events:
+      - httpApi:
+          path: /api/flights
+          method: POST
