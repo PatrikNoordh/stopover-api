@@ -16,3 +16,10 @@ functions:
       - httpApi:
           path: /api/flights
           method: GET
+
+  getFlightById:
+    handler: functions/getFlightById/index.handler
+    events:
+      - httpApi:
+          path: /api/flights/{id}
+          method: GET
