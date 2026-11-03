@@ -37,3 +37,10 @@ functions:
       - httpApi:
           path: /api/flights/{id}
           method: PUT
+
+  deleteFlight: 
+    handler: functions/deleteFlight/index.handler
+    events:
+      - httpApi:
+          path: /api/flights/{id}
+          method: DELETE
