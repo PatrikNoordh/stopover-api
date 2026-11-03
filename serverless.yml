@@ -30,3 +30,10 @@ functions:
       - httpApi:
           path: /api/flights
           method: POST
+
+  updateFlight:
+    handler: functions/updateFlight/index.handler
+    events:
+      - httpApi:
+          path: /api/flights/{id}
+          method: PUT
