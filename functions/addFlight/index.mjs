@@ -3,7 +3,8 @@ import httpJsonBodyParser from "@middy/http-json-body-parser";
 import httpErrorHandler from "@middy/http-error-handler";
 import { createError } from "@middy/util";
 import { sendResponse } from "../../responses/index.mjs";
-import { flights } from "../../data/index.mjs";
+import { PutCommand } from "@aws-sdk/lib-dynamodb";
+import { db } from "../../services/db.mjs";
 
 const addFlight = async (event) => {
   const { from, to, date, airline, price } = event.body ?? {};
@@ -30,7 +31,12 @@ const addFlight = async (event) => {
     price,
   };
 
-  flights.push(newFlight);
+  await db.send(
+    new PutCommand({
+      TableName: "flights-db",
+      Item: newFlight
+    })
+  )
 
   return sendResponse(201, { flight: newFlight });
 };
