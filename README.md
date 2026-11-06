@@ -2,7 +2,7 @@
 
 A serverless REST API for planning flight trips with stopovers, built on AWS Lambda, API Gateway and DynamoDB.
 
-Built as part of the course **Apputveckling mot molnet** (YH, Mobilapplikationsutvecklare MA25).
+Built as part of the course **Cloud Development**
 
 ## Tech stack
 
