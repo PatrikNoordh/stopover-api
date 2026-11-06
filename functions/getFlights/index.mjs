@@ -2,37 +2,22 @@ import middy from "@middy/core";
 import httpErrorHandler from "@middy/http-error-handler";
 import { createError } from "@middy/util";
 import { sendResponse } from "../../responses/index.mjs";
-import { ScanCommand } from "@aws-sdk/lib-dynamodb";
-import { db } from "../../services/db.mjs";
+import { getAllFlights } from "../../services/flights.mjs";
 
-const getFlights = async (event) => {
-  const { from, to, maxPrice } = event.queryStringParameters ?? {};
+export const handler = middy(async (event) => {
+  const { from, to, maxprice } = event.queryStringParameters ?? {};
 
-  if (maxPrice !== undefined && isNaN(Number(maxPrice))) {
-    throw createError(400, "maxPrice must be a number");
+  if (maxprice !== undefined && isNaN(Number(maxprice))) {
+    throw createError(400, "maxprice must be a number");
   }
 
-  const { Items } = await db.send(
-    new ScanCommand({
-      TableName: "flights-db",
-    }),
-  );
+  const flights = await getAllFlights();
 
-  let result = Items.sort((a, b) => a.date.localeCompare(b.date));
+  let result = flights.sort((a, b) => a.date.localeCompare(b.date));
 
-  if (from) {
-    result = result.filter((f) => f.from === from.toUpperCase());
-  }
-
-  if (to) {
-    result = result.filter((f) => f.to === to.toUpperCase());
-  }
-
-  if (maxPrice) {
-    result = result.filter((f) => f.price <= Number(maxPrice));
-  }
+  if (from) result = result.filter((f) => f.from === from.toUpperCase());
+  if (to) result = result.filter((f) => f.to === to.toUpperCase());
+  if (maxprice) result = result.filter((f) => f.price <= Number(maxprice));
 
   return sendResponse(200, { flights: result });
-};
-
-export const handler = middy(getFlights).use(httpErrorHandler());
+}).use(httpErrorHandler());

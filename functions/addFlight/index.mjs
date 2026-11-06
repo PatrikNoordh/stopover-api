@@ -3,10 +3,9 @@ import httpJsonBodyParser from "@middy/http-json-body-parser";
 import httpErrorHandler from "@middy/http-error-handler";
 import { createError } from "@middy/util";
 import { sendResponse } from "../../responses/index.mjs";
-import { PutCommand } from "@aws-sdk/lib-dynamodb";
-import { db } from "../../services/db.mjs";
+import { addFlight } from "../../services/flights.mjs";
 
-const addFlight = async (event) => {
+export const handler = middy(async (event) => {
   const { from, to, date, airline, price } = event.body ?? {};
 
   if (
@@ -22,25 +21,16 @@ const addFlight = async (event) => {
     );
   }
 
-  const newFlight = {
+  const flight = await addFlight({
     id: `f${crypto.randomUUID().slice(0, 5)}`,
     from: from.toUpperCase(),
     to: to.toUpperCase(),
     date,
     airline,
     price,
-  };
+  });
 
-  await db.send(
-    new PutCommand({
-      TableName: "flights-db",
-      Item: newFlight
-    })
-  )
-
-  return sendResponse(201, { flight: newFlight });
-};
-
-export const handler = middy(addFlight)
+  return sendResponse(201, { flight });
+})
   .use(httpJsonBodyParser())
   .use(httpErrorHandler());
