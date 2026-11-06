@@ -3,18 +3,19 @@ import httpJsonBodyParser from "@middy/http-json-body-parser";
 import httpErrorHandler from "@middy/http-error-handler";
 import { createError } from "@middy/util";
 import { sendResponse } from "../../responses/index.mjs";
-import { flights } from "../../data/index.mjs";
+import { updateFlight } from "../../services/flights.mjs";
 
-const updateFlight = async (event) => {
+export const handler = middy(async (event) => {
   const { id } = event.pathParameters;
+
   const { from, to, date, airline, price } = event.body ?? {};
 
   if (
-    typeof from != "string" ||
-    typeof to != "string" ||
-    typeof date != "string" ||
-    typeof airline != "string" ||
-    typeof price != "number"
+    typeof from !== "string" ||
+    typeof to !== "string" ||
+    typeof date !== "string" ||
+    typeof airline !== "string" ||
+    typeof price !== "number"
   ) {
     throw createError(
       400,
@@ -22,25 +23,15 @@ const updateFlight = async (event) => {
     );
   }
 
-  const index = flights.findIndex((f) => f.id === id);
-
-  if (index === -1) {
-    throw createError(404, `Flight not found`);
-  }
-  const updatedFlight = {
-    id,
+  const flight = await updateFlight(id, {
     from: from.toUpperCase(),
     to: to.toUpperCase(),
     date,
     airline,
     price,
-  };
+  });
 
-  flights[index] = updatedFlight;
-
-  return sendResponse(200, { flight: updatedFlight });
-};
-
-export const handler = middy(updateFlight)
+  return sendResponse(200, { flight });
+})
   .use(httpJsonBodyParser())
   .use(httpErrorHandler());
